@@ -17,7 +17,7 @@ It supports **usernames**, **dark/light mode toggle**, and real-time messaging v
 
 ## 📸 Preview
 
-![chat-preview](https://dummyimage.com/600x300/000/fff&text=Chat+App+Preview)  
+![chat-preview](ChatApp.png)  
 *(Replace this image with a real screenshot of your app)*
 
 ---
