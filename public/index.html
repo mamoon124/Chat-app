@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chat App</title>
+  <style>
+    :root {
+      --bg: #121212;
+      --text: #f0f0f0;
+      --input-bg: #2b2b2b;
+      --msg-bg: #2c2c2c;
+      --border: #333;
+      --highlight: #64b5f6;
+    }
+
+    .light {
+      --bg: #f2f2f2;
+      --text: #222;
+      --input-bg: #fff;
+      --msg-bg: #e0f7fa;
+      --border: #ccc;
+      --highlight: #2196f3;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: all 0.3s;
+    }
+
+    h1 {
+      color: var(--highlight);
+      margin-top: 20px;
+    }
+
+    #messeges {
+      width: 90%;
+      max-width: 500px;
+      height: 400px;
+      background-color: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 15px;
+      overflow-y: auto;
+      margin: 20px 0;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    }
+
+    #messeges .message {
+      background-color: var(--msg-bg);
+      padding: 10px;
+      border-radius: 8px;
+      margin: 8px 0;
+      word-wrap: break-word;
+    }
+
+    #messeges .username {
+      font-weight: bold;
+      color: var(--highlight);
+    }
+
+    .input-container {
+      display: flex;
+      justify-content: center;
+      width: 90%;
+      max-width: 500px;
+      gap: 10px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 16px;
+      background-color: var(--input-bg);
+      color: var(--text);
+    }
+
+    button {
+      padding: 10px 20px;
+      border-radius: 8px;
+      background-color: var(--highlight);
+      color: white;
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      filter: brightness(90%);
+    }
+
+    .toggle-theme {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      background: none;
+      border: 1px solid var(--highlight);
+      color: var(--highlight);
+      padding: 5px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .toggle-theme:hover {
+      background-color: var(--highlight);
+      color: var(--bg);
+    }
+  </style>
+</head>
+<body>
+  <button class="toggle-theme" id="themeToggle">☀️ Light</button>
+  <h1>🧠 WebSocket Chat</h1>
+
+  <div id="messeges"></div>
+
+  <div class="input-container">
+    <input type="text" id="messege" placeholder="Type a message..." />
+    <button id="SendBtn">Send</button>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const sendBtn = document.getElementById("SendBtn");
+    const messegeInput = document.getElementById("messege");
+    const allmesseges = document.getElementById("messeges");
+    const themeToggle = document.getElementById("themeToggle");
+
+    let username = "";
+
+    while (!username) {
+      username = prompt("Enter your name:")?.trim();
+    }
+
+    // Set default theme to dark
+    document.body.classList.remove("light");
+
+    themeToggle.addEventListener("click", () => {
+      document.body.classList.toggle("light");
+      const isLight = document.body.classList.contains("light");
+      themeToggle.textContent = isLight ? "🌙 Dark" : "☀️ Light";
+    });
+
+    socket.on('messege', ({ user, text }) => {
+      const div = document.createElement('div');
+      div.classList.add('message');
+      div.innerHTML = `<span class="username">${user}:</span> ${text}`;
+      allmesseges.appendChild(div);
+      allmesseges.scrollTop = allmesseges.scrollHeight;
+    });
+
+    sendBtn.addEventListener("click", () => {
+      const messege = messegeInput.value;
+      if (messege.trim() !== "") {
+        socket.emit("User-messege", {
+          user: username,
+          text: messege
+        });
+        messegeInput.value = "";
+      }
+    });
+
+    messegeInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") sendBtn.click();
+    });
+  </script>
+</body>
+</html>
